@@ -3,309 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CENTRAL DE DEUDORES — Consulta BCRA</title>
+<title>DÓLAR ARGENTINA — Análisis Cambiario</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"></script>
 <style>
-  :root {
-    --orange: #FF6A00;
-    --orange-glow: #FF8C00;
-    --orange-dim: #cc5500;
-    --dark: #0a0a0a;
-    --dark2: #111111;
-    --border: #2a2a2a;
-    --text: #e0e0e0;
-    --text-dim: #555;
-    --green: #00cc66;
-    --red: #ff3333;
-    --yellow: #ffaa00;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Share Tech Mono', monospace;
-    background: var(--dark);
-    color: var(--text);
-    min-height: 100vh;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,106,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,106,0,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .login-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--dark);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .login-overlay.hidden { display: none; }
-  .login-box {
-    background: var(--dark2);
-    border: 1px solid var(--border);
-    padding: 40px;
-    width: 380px;
-    max-width: 90vw;
-    text-align: center;
-  }
-  .login-box h2 {
-    font-family: 'Orbitron', sans-serif;
-    color: var(--orange);
-    font-size: 14px;
-    letter-spacing: 4px;
-    margin-bottom: 8px;
-  }
-  .login-box p {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 24px;
-    letter-spacing: 1px;
-  }
-  .login-box input {
-    width: 100%;
-    padding: 12px 16px;
-    background: var(--dark);
-    border: 1px solid var(--border);
-    color: var(--orange-glow);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 16px;
-    text-align: center;
-    letter-spacing: 4px;
-    margin-bottom: 16px;
-  }
-  .login-box input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 12px rgba(255,106,0,0.15); }
-  .login-error { color: var(--red); font-size: 12px; display: none; margin-bottom: 12px; }
-
-  .container {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 30px 20px;
-    position: relative;
-    z-index: 2;
-  }
-  .header { text-align: center; margin-bottom: 28px; }
-  .header::after {
-    content: '';
-    display: block;
-    width: 60%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--orange), transparent);
-    margin: 14px auto 0;
-  }
-  h1 {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    color: var(--orange);
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(255,106,0,0.3);
-  }
-  .subtitle { font-size: 11px; color: var(--text-dim); letter-spacing: 3px; margin-top: 6px; text-transform: uppercase; }
-
-  .card {
-    background: var(--dark2);
-    border: 1px solid var(--border);
-    padding: 24px;
-    margin-bottom: 16px;
-    position: relative;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 20px; right: 20px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--orange-dim), transparent);
-  }
-  .card-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--orange);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-  }
-  .card-title::before { content: '▸ '; }
-
-  label { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
-  input {
-    width: 100%;
-    padding: 11px 14px;
-    background: var(--dark);
-    border: 1px solid var(--border);
-    color: var(--orange-glow);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 15px;
-    transition: all 0.3s;
-  }
-  input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 12px rgba(255,106,0,0.15); }
-  .field { margin-bottom: 14px; }
-  .row { display: flex; gap: 12px; }
-  .row .field { flex: 1; }
-
-  .btn {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid var(--orange);
-    background: transparent;
-    color: var(--orange);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 6px;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn:hover { background: var(--orange); color: var(--dark); box-shadow: 0 0 30px rgba(255,106,0,0.3); }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { border-color: #333; color: #555; cursor: wait; background: transparent; box-shadow: none; }
-  .btn:disabled::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,106,0,0.1), transparent);
-    animation: sweep 1.5s ease-in-out infinite;
-  }
-  @keyframes sweep { 0% { left: -100%; } 100% { left: 100%; } }
-
-  .progress { display: none; margin-top: 16px; }
-  .progress.active { display: block; }
-  .progress-step {
-    padding: 6px 0;
-    font-size: 12px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: color 0.3s;
-  }
-  .progress-step.done { color: var(--green); }
-  .progress-step.running { color: var(--orange); }
-  .progress-step.error { color: var(--red); }
-  .progress-step .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-  .progress-step.done .dot { background: var(--green); }
-  .progress-step.running .dot { background: var(--orange); animation: blink 1s infinite; }
-  .progress-step.error .dot { background: var(--red); }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-  .results { display: none; }
-  .results.active { display: block; }
-  .result-error {
-    background: rgba(255,50,50,0.08);
-    border: 1px solid rgba(255,50,50,0.2);
-    padding: 16px;
-    color: #ff6666;
-    font-size: 13px;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .informe-box {
-    background: var(--dark);
-    border: 1px solid var(--border);
-    padding: 20px;
-    font-size: 13px;
-    line-height: 1.8;
-    max-height: 500px;
-    overflow-y: auto;
-    color: var(--text);
-  }
-  .informe-box h1, .informe-box h2, .informe-box h3 {
-    font-family: 'Orbitron', sans-serif;
-    color: var(--orange);
-    margin: 18px 0 8px 0;
-    letter-spacing: 1px;
-  }
-  .informe-box h1 { font-size: 16px; }
-  .informe-box h2 { font-size: 14px; }
-  .informe-box h3 { font-size: 12px; }
-  .informe-box h1:first-child, .informe-box h2:first-child { margin-top: 0; }
-  .informe-box p { margin: 8px 0; }
-  .informe-box strong { color: var(--orange-glow); }
-  .informe-box ul, .informe-box ol { padding-left: 20px; margin: 8px 0; }
-  .informe-box li { margin: 4px 0; }
-  .informe-box li::marker { color: var(--orange-dim); }
-  .informe-box hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-  .informe-box code { background: var(--dark2); color: var(--orange); padding: 2px 6px; border-radius: 2px; font-size: 12px; }
-  .informe-box table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-  .informe-box th { text-align: left; color: var(--orange); border-bottom: 1px solid var(--orange-dim); padding: 6px 8px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
-  .informe-box td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
-  .informe-box tr:hover td { background: rgba(255,106,0,0.05); }
-  .informe-box::-webkit-scrollbar { width: 4px; }
-  .informe-box::-webkit-scrollbar-thumb { background: var(--border); }
-
-  .sit-1 { color: var(--green); font-weight: bold; }
-  .sit-2 { color: var(--yellow); font-weight: bold; }
-  .sit-3 { color: var(--orange); font-weight: bold; }
-  .sit-45 { color: var(--red); font-weight: bold; }
-
-  .raw-toggle {
-    font-size: 10px;
-    color: var(--text-dim);
-    cursor: pointer;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 12px;
-    text-align: right;
-  }
-  .raw-toggle:hover { color: var(--orange); }
-  .raw-box {
-    display: none;
-    background: var(--dark);
-    border: 1px solid var(--border);
-    padding: 14px;
-    font-size: 10px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-top: 8px;
-    color: #666;
-  }
-  .raw-box.active { display: block; }
-
-  .status-bar {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-    padding: 12px 0;
-  }
-  .footer { text-align: center; font-size: 10px; color: #333; letter-spacing: 2px; margin-top: 16px; }
+  :root { --orange:#FF6A00; --orange-glow:#FF8C00; --orange-dim:#cc5500; --dark:#0a0a0a; --dark2:#111111; --border:#2a2a2a; --text:#e0e0e0; --text-dim:#555; --green:#00cc66; --red:#ff3333; --yellow:#ffaa00; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Share Tech Mono',monospace; background:var(--dark); color:var(--text); min-height:100vh; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,106,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,106,0,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; }
+  body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px); pointer-events:none; z-index:1; }
+  .login-overlay { position:fixed; inset:0; background:var(--dark); z-index:100; display:flex; align-items:center; justify-content:center; }
+  .login-overlay.hidden { display:none; }
+  .login-box { background:var(--dark2); border:1px solid var(--border); padding:40px; width:380px; max-width:90vw; text-align:center; }
+  .login-box h2 { font-family:'Orbitron',sans-serif; color:var(--orange); font-size:14px; letter-spacing:4px; margin-bottom:8px; }
+  .login-box p { font-size:11px; color:var(--text-dim); margin-bottom:24px; letter-spacing:1px; }
+  .login-box input { width:100%; padding:12px 16px; background:var(--dark); border:1px solid var(--border); color:var(--orange-glow); font-family:'Share Tech Mono',monospace; font-size:16px; text-align:center; letter-spacing:4px; margin-bottom:16px; }
+  .login-box input:focus { outline:none; border-color:var(--orange); box-shadow:0 0 12px rgba(255,106,0,0.15); }
+  .login-error { color:var(--red); font-size:12px; display:none; margin-bottom:12px; }
+  .container { max-width:700px; margin:0 auto; padding:30px 20px; position:relative; z-index:2; }
+  .header { text-align:center; margin-bottom:28px; }
+  .header::after { content:''; display:block; width:60%; height:1px; background:linear-gradient(90deg,transparent,var(--orange),transparent); margin:14px auto 0; }
+  h1 { font-family:'Orbitron',sans-serif; font-weight:900; font-size:18px; color:var(--orange); letter-spacing:4px; text-transform:uppercase; text-shadow:0 0 20px rgba(255,106,0,0.3); }
+  .subtitle { font-size:11px; color:var(--text-dim); letter-spacing:3px; margin-top:6px; text-transform:uppercase; }
+  .card { background:var(--dark2); border:1px solid var(--border); padding:24px; margin-bottom:16px; position:relative; }
+  .card::before { content:''; position:absolute; top:-1px; left:20px; right:20px; height:1px; background:linear-gradient(90deg,transparent,var(--orange-dim),transparent); }
+  .card-title { font-family:'Orbitron',sans-serif; font-size:10px; font-weight:600; color:var(--orange); letter-spacing:3px; text-transform:uppercase; margin-bottom:18px; }
+  .card-title::before { content:'▸ '; }
+  label { display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
+  input,select { width:100%; padding:11px 14px; background:var(--dark); border:1px solid var(--border); color:var(--orange-glow); font-family:'Share Tech Mono',monospace; font-size:15px; transition:all 0.3s; -webkit-appearance:none; }
+  select { cursor:pointer; } select option { background:var(--dark2); color:var(--text); }
+  input:focus,select:focus { outline:none; border-color:var(--orange); box-shadow:0 0 12px rgba(255,106,0,0.15); }
+  .field { margin-bottom:14px; } .row { display:flex; gap:12px; } .row .field { flex:1; }
+  .btn { width:100%; padding:14px; border:1px solid var(--orange); background:transparent; color:var(--orange); font-family:'Orbitron',sans-serif; font-size:12px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:all 0.3s; margin-top:6px; position:relative; overflow:hidden; }
+  .btn:hover { background:var(--orange); color:var(--dark); box-shadow:0 0 30px rgba(255,106,0,0.3); }
+  .btn:active { transform:scale(0.98); }
+  .btn:disabled { border-color:#333; color:#555; cursor:wait; background:transparent; box-shadow:none; }
+  .btn:disabled::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,106,0,0.1),transparent); animation:sweep 1.5s ease-in-out infinite; }
+  @keyframes sweep { 0%{left:-100%} 100%{left:100%} }
+  .progress { display:none; margin-top:16px; } .progress.active { display:block; }
+  .progress-step { padding:6px 0; font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:10px; }
+  .progress-step.done { color:var(--green); } .progress-step.running { color:var(--orange); } .progress-step.error { color:var(--red); }
+  .progress-step .dot { width:8px; height:8px; border-radius:50%; background:var(--border); flex-shrink:0; }
+  .progress-step.done .dot { background:var(--green); } .progress-step.running .dot { background:var(--orange); animation:blink 1s infinite; } .progress-step.error .dot { background:var(--red); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .results { display:none; } .results.active { display:block; }
+  .result-error { background:rgba(255,50,50,0.08); border:1px solid rgba(255,50,50,0.2); padding:16px; color:#ff6666; font-size:13px; margin-bottom:16px; display:none; }
+  .informe-box { background:var(--dark); border:1px solid var(--border); padding:20px; font-size:13px; line-height:1.8; max-height:500px; overflow-y:auto; color:var(--text); }
+  .informe-box h1,.informe-box h2,.informe-box h3 { font-family:'Orbitron',sans-serif; color:var(--orange); margin:18px 0 8px 0; letter-spacing:1px; }
+  .informe-box h1 { font-size:16px; } .informe-box h2 { font-size:14px; } .informe-box h3 { font-size:12px; }
+  .informe-box h1:first-child,.informe-box h2:first-child { margin-top:0; }
+  .informe-box p { margin:8px 0; } .informe-box strong { color:var(--orange-glow); }
+  .informe-box ul,.informe-box ol { padding-left:20px; margin:8px 0; } .informe-box li { margin:4px 0; } .informe-box li::marker { color:var(--orange-dim); }
+  .informe-box hr { border:none; border-top:1px solid var(--border); margin:16px 0; }
+  .informe-box code { background:var(--dark2); color:var(--orange); padding:2px 6px; border-radius:2px; font-size:12px; }
+  .informe-box table { width:100%; border-collapse:collapse; margin:12px 0; }
+  .informe-box th { text-align:left; color:var(--orange); border-bottom:1px solid var(--orange-dim); padding:6px 8px; font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+  .informe-box td { padding:6px 8px; border-bottom:1px solid var(--border); }
+  .informe-box tr:hover td { background:rgba(255,106,0,0.05); }
+  .informe-box::-webkit-scrollbar { width:4px; } .informe-box::-webkit-scrollbar-thumb { background:var(--border); }
+  .raw-toggle { font-size:10px; color:var(--text-dim); cursor:pointer; letter-spacing:2px; text-transform:uppercase; margin-top:12px; text-align:right; }
+  .raw-toggle:hover { color:var(--orange); }
+  .raw-box { display:none; background:var(--dark); border:1px solid var(--border); padding:14px; font-size:10px; line-height:1.5; white-space:pre-wrap; max-height:300px; overflow-y:auto; margin-top:8px; color:#666; }
+  .raw-box.active { display:block; }
+  .status-bar { display:flex; justify-content:space-between; font-size:10px; color:var(--text-dim); letter-spacing:1px; padding:12px 0; }
+  .footer { text-align:center; font-size:10px; color:#333; letter-spacing:2px; margin-top:16px; }
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <h2>Acceso Restringido</h2>
@@ -315,256 +79,80 @@
     <button class="btn" id="btnLogin" onclick="checkLogin()">Ingresar</button>
   </div>
 </div>
-
-<!-- MAIN -->
 <div class="container" id="mainApp" style="display:none">
-
   <div class="header">
-    <h1>Central de Deudores</h1>
-    <div class="subtitle">Consulta BCRA via Make.com + Gemini</div>
+    <h1>Análisis Cambiario</h1>
+    <div class="subtitle">Dólar Argentina — Make.com + Gemini AI</div>
   </div>
-
   <div class="card">
     <div class="card-title">Configuración</div>
     <div class="field">
       <label>URL del Webhook de Make.com</label>
-      <input type="text" id="webhookUrl" placeholder="https://hook.us2.make.com/..." />
+      <input type="text" id="webhookUrl" placeholder="https://hook.us2.make.com/..." oninput="localStorage.setItem('webhookUrl',this.value)" />
     </div>
   </div>
-
   <div class="card">
-    <div class="card-title">Datos de consulta</div>
-    <div class="field">
-      <label>CUIT / CUIL / CDI (11 dígitos)</label>
-      <input type="text" id="cuit" placeholder="20123456789" maxlength="11" />
-    </div>
+    <div class="card-title">Consulta</div>
     <div class="row">
       <div class="field">
-        <label>Período desde</label>
-        <input type="month" id="periodoDesde" />
+        <label>Dólar a analizar en detalle</label>
+        <select id="casa">
+          <option value="blue">Blue</option>
+          <option value="oficial">Oficial</option>
+          <option value="bolsa">MEP (Bolsa)</option>
+          <option value="contadoconliqui">CCL</option>
+          <option value="mayorista">Mayorista</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="cripto">Cripto</option>
+        </select>
       </div>
       <div class="field">
-        <label>Período hasta</label>
-        <input type="month" id="periodoHasta" />
+        <label>Tipo de análisis</label>
+        <select id="tipoAnalisis">
+          <option value="completo">Completo</option>
+          <option value="brechas">Foco en brechas</option>
+          <option value="tendencia">Foco en tendencia</option>
+        </select>
       </div>
     </div>
-
-    <button class="btn" id="btnConsultar" onclick="consultar()">
-      Consultar situación crediticia
-    </button>
-
+    <button class="btn" id="btnConsultar" onclick="consultar()">Analizar mercado cambiario</button>
     <div class="progress" id="progress">
       <div class="progress-step" id="step1"><span class="dot"></span>Enviando consulta a Make.com...</div>
-      <div class="progress-step" id="step2"><span class="dot"></span>Consultando BCRA — Deudas...</div>
-      <div class="progress-step" id="step3"><span class="dot"></span>Consultando BCRA — Cheques rechazados...</div>
-      <div class="progress-step" id="step4"><span class="dot"></span>Procesando con Gemini AI...</div>
+      <div class="progress-step" id="step2"><span class="dot"></span>Obteniendo cotizaciones (DolarApi)...</div>
+      <div class="progress-step" id="step3"><span class="dot"></span>Obteniendo histórico (ArgentinaDatos)...</div>
+      <div class="progress-step" id="step4"><span class="dot"></span>Analizando con Gemini AI...</div>
       <div class="progress-step" id="step5"><span class="dot"></span>Generando informe...</div>
     </div>
   </div>
-
   <div class="results" id="results">
     <div class="card">
-      <div class="card-title">Informe crediticio</div>
+      <div class="card-title">Informe cambiario</div>
       <div id="errorBox" class="result-error"></div>
       <div class="informe-box" id="informe"></div>
-      <div class="raw-toggle" onclick="toggleRaw()">▸ Ver JSON crudo</div>
+      <div class="raw-toggle" onclick="toggleRaw()">▸ Ver datos crudos</div>
       <div class="raw-box" id="rawJson"></div>
-      <div style="text-align:center; margin-top:16px;">
+      <div style="text-align:center;margin-top:16px;">
         <button class="btn" onclick="nuevaConsulta()">Nueva consulta</button>
       </div>
     </div>
   </div>
-
   <div class="status-bar">
-    <span>◆ BCRA API v1.0 | MAKE.COM | GEMINI</span>
+    <span>◆ DOLARAPI.COM | ARGENTINADATOS | GEMINI</span>
     <span id="clock"></span>
   </div>
   <div class="footer">FCE-UBA — DIPLOMATURA 2026</div>
 </div>
-
 <script>
-// ========== LOGIN ==========
-async function checkLogin() {
-  const pass = document.getElementById("loginPass").value.trim();
-  if (!pass) return;
-
-  const btn = document.getElementById("btnLogin");
-  btn.disabled = true;
-  btn.textContent = "VERIFICANDO...";
-
-  try {
-    // Si estamos en Vercel, validar contra /api/login
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: pass })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      document.getElementById("loginOverlay").classList.add("hidden");
-      document.getElementById("mainApp").style.display = "block";
-    } else {
-      showLoginError();
-    }
-  } catch (e) {
-    // Si no hay /api/login (archivo local), fallback a password local
-    if (pass === "fceuba2026") {
-      document.getElementById("loginOverlay").classList.add("hidden");
-      document.getElementById("mainApp").style.display = "block";
-    } else {
-      showLoginError();
-    }
-  }
-
-  btn.disabled = false;
-  btn.textContent = "INGRESAR";
-}
-
-function showLoginError() {
-  const err = document.getElementById("loginError");
-  err.style.display = "block";
-  document.getElementById("loginPass").value = "";
-  document.getElementById("loginPass").focus();
-  setTimeout(() => err.style.display = "none", 2000);
-}
-
-// ========== DEFAULTS ==========
-const now = new Date();
-document.getElementById("periodoHasta").value = now.toISOString().slice(0,7);
-document.getElementById("periodoDesde").value = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().slice(0,7);
-
-// ========== CLOCK ==========
-function updateClock() {
-  document.getElementById("clock").textContent = new Date().toLocaleTimeString("es-AR", { hour12: false }) + " UTC-3";
-}
-updateClock();
-setInterval(updateClock, 1000);
-
-// ========== PROGRESS ==========
-function resetSteps() {
-  for (let i = 1; i <= 5; i++) document.getElementById("step" + i).className = "progress-step";
-}
-function setStep(n, state) {
-  document.getElementById("step" + n).className = "progress-step " + state;
-}
-
-// ========== CONSULTA ==========
-async function consultar() {
-  const url = document.getElementById("webhookUrl").value.trim();
-  const cuit = document.getElementById("cuit").value.trim().replace(/[-\s]/g, "");
-  const desde = document.getElementById("periodoDesde").value.replace("-", "");
-  const hasta = document.getElementById("periodoHasta").value.replace("-", "");
-
-  if (!url) { alert("Pegá la URL del webhook de Make.com"); return; }
-  if (!cuit || cuit.length !== 11 || !/^\d{11}$/.test(cuit)) {
-    alert("El CUIT debe tener exactamente 11 dígitos numéricos");
-    return;
-  }
-
-  const btn = document.getElementById("btnConsultar");
-  btn.disabled = true;
-  btn.textContent = "PROCESANDO...";
-
-  document.getElementById("results").classList.remove("active");
-  document.getElementById("progress").classList.add("active");
-  document.getElementById("errorBox").style.display = "none";
-  resetSteps();
-  setStep(1, "running");
-
-  try {
-    const payload = {
-      cuit: cuit,
-      periodo_desde: desde,
-      periodo_hasta: hasta,
-      timestamp: new Date().toISOString()
-    };
-
-    // Mandar al webhook y esperar respuesta
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    setStep(1, "done");
-    setStep(2, "running");
-    await sleep(600);
-    setStep(2, "done");
-    setStep(3, "running");
-    await sleep(600);
-    setStep(3, "done");
-    setStep(4, "running");
-
-    let data;
-    const contentType = response.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      try { data = JSON.parse(text); }
-      catch { data = { informe: text }; }
-    }
-
-    setStep(4, "done");
-    setStep(5, "running");
-    await sleep(300);
-    setStep(5, "done");
-
-    // Mostrar resultados
-    document.getElementById("results").classList.add("active");
-
-    if (data.error) {
-      document.getElementById("errorBox").style.display = "block";
-      document.getElementById("errorBox").textContent = "⚠ " + data.error;
-      document.getElementById("informe").textContent = "";
-    } else {
-      const informe = data.informe || data.analisis || JSON.stringify(data, null, 2);
-      document.getElementById("informe").innerHTML = formatInforme(informe);
-    }
-
-    document.getElementById("rawJson").textContent = JSON.stringify(data, null, 2);
-
-  } catch (e) {
-    for (let i = 1; i <= 5; i++) {
-      const el = document.getElementById("step" + i);
-      if (el.classList.contains("running")) { setStep(i, "error"); break; }
-    }
-    document.getElementById("results").classList.add("active");
-    document.getElementById("errorBox").style.display = "block";
-    document.getElementById("errorBox").textContent = "✕ " + e.message + "\n\n¿Hiciste Run Once en Make.com antes de consultar?";
-    document.getElementById("informe").textContent = "";
-  }
-
-  btn.disabled = false;
-  btn.textContent = "CONSULTAR SITUACIÓN CREDITICIA";
-  document.getElementById("progress").classList.remove("active");
-}
-
-function formatInforme(text) {
-  // Renderizar markdown a HTML
-  let html = marked.parse(text);
-  // Colorear situaciones y semáforo
-  html = html
-    .replace(/Situación 1/gi, '<span class="sit-1">Situación 1 (Normal)</span>')
-    .replace(/Situación 2/gi, '<span class="sit-2">Situación 2 (Seguimiento)</span>')
-    .replace(/Situación 3/gi, '<span class="sit-3">Situación 3 (Problemas)</span>')
-    .replace(/Situación 4/gi, '<span class="sit-45">Situación 4 (Alto riesgo)</span>')
-    .replace(/Situación 5/gi, '<span class="sit-45">Situación 5 (Irrecuperable)</span>')
-    .replace(/VERDE/g, '<span class="sit-1">🟢 VERDE</span>')
-    .replace(/AMARILLO/g, '<span class="sit-2">🟡 AMARILLO</span>')
-    .replace(/ROJO/g, '<span class="sit-45">🔴 ROJO</span>');
-  return html;
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function toggleRaw() { document.getElementById("rawJson").classList.toggle("active"); }
-function nuevaConsulta() {
-  document.getElementById("results").classList.remove("active");
-  document.getElementById("cuit").value = "";
-  document.getElementById("cuit").focus();
-}
+async function checkLogin(){const p=document.getElementById("loginPass").value.trim();if(!p)return;const b=document.getElementById("btnLogin");b.disabled=true;b.textContent="VERIFICANDO...";try{const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:p})});const d=await r.json();if(d.ok){show()}else{err()}}catch(e){if(p==="fceuba2026"){show()}else{err()}}b.disabled=false;b.textContent="INGRESAR";function show(){document.getElementById("loginOverlay").classList.add("hidden");document.getElementById("mainApp").style.display="block"}function err(){const el=document.getElementById("loginError");el.style.display="block";document.getElementById("loginPass").value="";document.getElementById("loginPass").focus();setTimeout(()=>el.style.display="none",2000)}}
+function updateClock(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("es-AR",{hour12:false})+" UTC-3"}updateClock();setInterval(updateClock,1000);
+const saved=localStorage.getItem("webhookUrl");if(saved)document.getElementById("webhookUrl").value=saved;
+function resetSteps(){for(let i=1;i<=5;i++)document.getElementById("step"+i).className="progress-step"}
+function setStep(n,s){document.getElementById("step"+n).className="progress-step "+s}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+async function consultar(){const url=document.getElementById("webhookUrl").value.trim();const casa=document.getElementById("casa").value;const tipo=document.getElementById("tipoAnalisis").value;if(!url){alert("Pegá la URL del webhook de Make.com");return}const btn=document.getElementById("btnConsultar");btn.disabled=true;btn.textContent="PROCESANDO...";document.getElementById("results").classList.remove("active");document.getElementById("progress").classList.add("active");document.getElementById("errorBox").style.display="none";resetSteps();setStep(1,"running");try{const payload={tipo_analisis:tipo,casa:casa,timestamp:new Date().toISOString()};const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});setStep(1,"done");setStep(2,"running");await sleep(500);setStep(2,"done");setStep(3,"running");await sleep(500);setStep(3,"done");setStep(4,"running");let data;const ct=response.headers.get("content-type")||"";if(ct.includes("application/json")){data=await response.json()}else{const text=await response.text();try{data=JSON.parse(text)}catch{data={informe:text}}}setStep(4,"done");setStep(5,"running");await sleep(300);setStep(5,"done");document.getElementById("results").classList.add("active");if(data.error){document.getElementById("errorBox").style.display="block";document.getElementById("errorBox").textContent="⚠ "+data.error;document.getElementById("informe").textContent=""}else{const informe=data.informe||(typeof data==="string"?data:JSON.stringify(data,null,2));document.getElementById("informe").innerHTML=formatInforme(informe)}document.getElementById("rawJson").textContent=JSON.stringify(data,null,2)}catch(e){for(let i=1;i<=5;i++){if(document.getElementById("step"+i).classList.contains("running")){setStep(i,"error");break}}document.getElementById("results").classList.add("active");document.getElementById("errorBox").style.display="block";document.getElementById("errorBox").textContent="✕ "+e.message+"\n\n¿Hiciste Run Once en Make.com?";document.getElementById("informe").textContent=""}btn.disabled=false;btn.textContent="ANALIZAR MERCADO CAMBIARIO";document.getElementById("progress").classList.remove("active")}
+function formatInforme(t){let h=marked.parse(t);return h.replace(/VERDE/g,'<span style="color:var(--green);font-weight:bold">🟢 VERDE</span>').replace(/AMARILLO/g,'<span style="color:var(--yellow);font-weight:bold">🟡 AMARILLO</span>').replace(/ROJO/g,'<span style="color:var(--red);font-weight:bold">🔴 ROJO</span>')}
+function toggleRaw(){document.getElementById("rawJson").classList.toggle("active")}
+function nuevaConsulta(){document.getElementById("results").classList.remove("active")}
 </script>
 </body>
 </html>
