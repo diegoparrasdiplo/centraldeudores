@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CENTRAL DE DEUDORES — Consulta BCRA</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"></script>
 <style>
   :root {
     --orange: #FF6A00;
@@ -233,11 +234,31 @@
     padding: 20px;
     font-size: 13px;
     line-height: 1.8;
-    white-space: pre-wrap;
     max-height: 500px;
     overflow-y: auto;
     color: var(--text);
   }
+  .informe-box h1, .informe-box h2, .informe-box h3 {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--orange);
+    margin: 18px 0 8px 0;
+    letter-spacing: 1px;
+  }
+  .informe-box h1 { font-size: 16px; }
+  .informe-box h2 { font-size: 14px; }
+  .informe-box h3 { font-size: 12px; }
+  .informe-box h1:first-child, .informe-box h2:first-child { margin-top: 0; }
+  .informe-box p { margin: 8px 0; }
+  .informe-box strong { color: var(--orange-glow); }
+  .informe-box ul, .informe-box ol { padding-left: 20px; margin: 8px 0; }
+  .informe-box li { margin: 4px 0; }
+  .informe-box li::marker { color: var(--orange-dim); }
+  .informe-box hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .informe-box code { background: var(--dark2); color: var(--orange); padding: 2px 6px; border-radius: 2px; font-size: 12px; }
+  .informe-box table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .informe-box th { text-align: left; color: var(--orange); border-bottom: 1px solid var(--orange-dim); padding: 6px 8px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .informe-box td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .informe-box tr:hover td { background: rgba(255,106,0,0.05); }
   .informe-box::-webkit-scrollbar { width: 4px; }
   .informe-box::-webkit-scrollbar-thumb { background: var(--border); }
 
@@ -522,7 +543,10 @@ async function consultar() {
 }
 
 function formatInforme(text) {
-  return text
+  // Renderizar markdown a HTML
+  let html = marked.parse(text);
+  // Colorear situaciones y semáforo
+  html = html
     .replace(/Situación 1/gi, '<span class="sit-1">Situación 1 (Normal)</span>')
     .replace(/Situación 2/gi, '<span class="sit-2">Situación 2 (Seguimiento)</span>')
     .replace(/Situación 3/gi, '<span class="sit-3">Situación 3 (Problemas)</span>')
@@ -531,6 +555,7 @@ function formatInforme(text) {
     .replace(/VERDE/g, '<span class="sit-1">🟢 VERDE</span>')
     .replace(/AMARILLO/g, '<span class="sit-2">🟡 AMARILLO</span>')
     .replace(/ROJO/g, '<span class="sit-45">🔴 ROJO</span>');
+  return html;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
